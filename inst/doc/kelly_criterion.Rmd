@@ -1,0 +1,48 @@
+---
+title: "The Kelly criterion"
+author: "Arvid Kingl"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The Kelly Criterion}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## The Kelly criterion
+
+The Kelly criterion optimises the expected return on a series of identical, sequential bets. The criterion gives the ideal ratio of the bank roll that should be placed on a bet.  
+
+If a single bet has a positive outcome with *objective* probability $p$ and a negative outcome with probability $q = 1-p$, then the Kelly criterion is given by
+$$\kappa = \frac{\alpha_w p-\alpha_l q}{\alpha_w\alpha_l},$$
+where $\alpha_w$ is the multiplies of the amount of stake that is won in the case of a win and $\alpha_l$ the amount proportional to the stake that is lost. 
+Many exchanges, such as Betfair, use the decimal odds system. When backing a selection in the decimal system, the losing amount is the stake itself, so $\alpha_l = 1$, and the winning multiplier is the quoted price $P-1$. Additionally, commisions are typically proportional to winnings, which further reduce the potential winnings.
+
+The `kelly_back_dec` and `kelly_lay_dec` functions allow for a quick calculation of the Kelly criterion given the true probability, the quoted price and a commision percentage.
+```{r}
+library(RKelly)
+
+# A bet to back at price 2.1 and objective probability of 0.5 and 5% commision
+kelly_back_dec(price = 2.1, p=0.5, commision_rate = 0.05)
+```
+
+The same applies for lay bets where $\alpha_w = 1$ and $\alpha_l = P-1$.
+```{r}
+# A bet to lay at price 1.9 and objective probability of 0.5 and 5% commision
+kelly_lay_dec(price = 1.9, p = 0.5, commision_rate = 0.05)
+```
+
+A negative Kelly criterion means that the bet is not favored by the model and should be avoided.
+```{r}
+kelly_back_dec(price = 1.9, p=0.5, commision_rate = 0.0)
+```
+
+Use at your own risk.
+More detailed derivations can be found here. [here](http://www.eecs.harvard.edu/cs286r/courses/fall12/papers/Thorpe_KellyCriterion2007.pdf)/
